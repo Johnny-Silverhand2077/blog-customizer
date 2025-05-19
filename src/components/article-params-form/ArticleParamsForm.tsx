@@ -1,5 +1,4 @@
-import { useState, useRef, FormEvent } from 'react';
-import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
+import { useState, useRef, FormEvent, useEffect } from 'react';
 
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
@@ -38,15 +37,25 @@ export const ArticleParamsForm = ({
 	);
 	const [contentWidth, setContentWidth] = useState(articleState.contentWidth);
 
-	const [isOpen, setIsOpen] = useState(false);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	function toggleSidebar() {
-		setIsOpen((prev) => !prev);
+		setIsMenuOpen((prev) => !prev);
 	}
 
 	const rootRef = useRef<HTMLDivElement>(null);
 
-	useOutsideClickClose({ isOpen, rootRef, onChange: setIsOpen });
+	useEffect(() => {
+		const handleClick = (e: MouseEvent) => {
+			if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+				setIsMenuOpen(false);
+			}
+		};
+		document.addEventListener('mousedown', handleClick);
+		return () => {
+			document.removeEventListener('mousedown', handleClick);
+		};
+	}, [isMenuOpen]);
 
 	function handleClickButtonApply(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -70,9 +79,11 @@ export const ArticleParamsForm = ({
 
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={toggleSidebar} />
+			<ArrowButton isOpen={isMenuOpen} onClick={toggleSidebar} />
 			<aside
-				className={clsx(styles.container, { [styles.container_open]: isOpen })}
+				className={clsx(styles.container, {
+					[styles.container_open]: isMenuOpen,
+				})}
 				ref={rootRef}>
 				<form
 					className={styles.form}
