@@ -46,12 +46,16 @@ export const ArticleParamsForm = ({
 	const rootRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
+		if (!isMenuOpen) return;
+
 		const handleClick = (e: MouseEvent) => {
 			if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
 				setIsMenuOpen(false);
 			}
 		};
+
 		document.addEventListener('mousedown', handleClick);
+
 		return () => {
 			document.removeEventListener('mousedown', handleClick);
 		};
